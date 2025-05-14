@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据预处理 - 高光谱图像处理系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='demo_style1.css') }}">
+    <style>
+        .upload-form {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .form-label {
+            color: #b7b2a9;
+            font-weight: 500;
+            margin-bottom: 12px;
+            display: block;
+            font-size: 1.1em;
+            letter-spacing: 0.5px;
+        }
+
+        .data-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #b7b2a9;
+        }
+
+        .data-info h5 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 2px solid rgba(183, 178, 169, 0.3);
+        }
+
+        .step-indicator {
+            color: #b7b2a9;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-indicator::before {
+            content: '';
+            width: 30px;
+            height: 2px;
+            background: #b7b2a9;
+            display: inline-block;
+        }
+
+        .process-steps {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9em;
+            margin: 25px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #b7b2a9, #d4cfc7);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #d4cfc7, #ffffff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            animation: fadeIn 0.5s ease forwards;
+            animation-delay: calc(var(--i) * 0.2s);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="#" class="logo">Major Function</a>
+        <nav class="navbar">
+            <a href="#" class="item" style="--i: 1">Home</a>
+            <a href="" class="active item" style="--i: 3">Major Function</a>
+            <a href="about/about.html" class="item" style="--i: 4">About</a>
+            <a href="" class="item" style="--i: 5">Support</a>
+        </nav>
+    </header>
+    <div class="content">
+        <div class="demo-container">
+            <div class="demo-content">
+                <div class="upload-form">
+                    <div class="step-indicator">第二步 - 数据预处理</div>
+                    <div class="data-info">
+                        <h5>数据信息</h5>
+                        <p>图像大小: {{ data_shape[0] }} × {{ data_shape[1] }} 像素</p>
+                        <p>波段数量: {{ num_bands }} 个波段</p>
+                    </div>
+
+                    <form action="{{ url_for('preprocess') }}" method="post">
+                        <div class="form-group" style="--i: 1">
+                            <label for="snr_threshold" class="form-label">信噪比阈值</label>
+                            <input type="number" step="0.01" class="form-control" id="snr_threshold" name="snr_threshold"
+                                   value="0.1" min="0" max="1" required>
+                            <div class="form-text">用于剔除低信噪比波段（建议值：0.1-0.5）</div>
+                        </div>
+
+                        <div class="form-group" style="--i: 2">
+                            <label for="n_components" class="form-label">PCA降维组件数</label>
+                            <input type="number" class="form-control" id="n_components" name="n_components"
+                                   value="30" min="1" max="{{ num_bands }}" required>
+                            <div class="form-text">PCA降维后保留的主成分数量（最大值：{{ num_bands }}）</div>
+                        </div>
+
+                        <div class="process-steps">
+                            处理步骤：SNR波段剔除 → PCA降维 → Z-score标准化 → 直接分类
+                        </div>
+
+                        <div style="text-align: center; animation: fadeIn 0.5s ease forwards; animation-delay: 0.6s;">
+                            <button type="submit" class="btn-primary">开始预处理</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加表单提交动画
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const button = this.querySelector('.btn-primary');
+            button.style.pointerEvents = 'none';
+            button.style.opacity = '0.7';
+            button.textContent = '处理中...';
+        });
+    </script>
+</body>
+</html>

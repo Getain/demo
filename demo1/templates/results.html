@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预测结果 - 高光谱图像处理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .results-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .metric-card {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #0d6efd;
+            margin: 10px 0;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .image-container {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .image-container img {
+            width: 100%;
+            height: auto;
+        }
+        .btn-custom {
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="results-container">
+            <div class="header">
+                <h1>高光谱图像分类结果</h1>
+                <p class="text-muted">分类完成，以下是详细的分析结果</p>
+            </div>
+
+            <!-- 评估指标部分 -->
+            <div class="section-title">评估指标</div>
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="metric-card text-center">
+                        <div class="metric-label">总体精度 (OA)</div>
+                        <div class="metric-value">{{ "%.2f"|format(metrics.overall_accuracy * 100) }}%</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card text-center">
+                        <div class="metric-label">平均精度 (AA)</div>
+                        <div class="metric-value">{{ "%.2f"|format(metrics.average_accuracy * 100) }}%</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="metric-card text-center">
+                        <div class="metric-label">Kappa 系数</div>
+                        <div class="metric-value">{{ "%.4f"|format(metrics.kappa) }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 可视化结果部分 -->
+            <div class="section-title">可视化结果</div>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <h5 class="text-center mb-3">分类结果图</h5>
+                        <div class="image-container">
+                            <img src="{{ url_for('get_classification_map') }}"
+                                 alt="Classification Map" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="metric-card">
+                        <h5 class="text-center mb-3">混淆矩阵</h5>
+                        <div class="image-container">
+                            <img src="{{ url_for('get_confusion_matrix') }}"
+                                 alt="Confusion Matrix" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作按钮部分 -->
+            <div class="text-center mt-4">
+                <a href="{{ url_for('download_results') }}"
+                   class="btn btn-success btn-custom me-3">
+                    <i class="fas fa-download"></i> 下载完整结果
+                </a>
+                <a href="{{ url_for('index') }}"
+                   class="btn btn-primary btn-custom">
+                    <i class="fas fa-home"></i> 返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加Font Awesome图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</body>
+</html>
